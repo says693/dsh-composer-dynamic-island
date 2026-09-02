@@ -10,7 +10,7 @@
 
 本包有意将以下两层实现分开：
 
-- `lib/host.js` 与 `dsh-plugin.json` 构成一个无界面的 Community v0.15 `host` facet。它不需要契约、权限、凭据、浏览器或 GUI。
+- `src/index.ts`（发布为 `lib/types/index.js`）与 `dsh-plugin.json` 构成一个无界面的 Community v0.15 `host` facet。它不需要契约、权限、凭据、浏览器或 GUI。
 - `lib/client.js` 是可选的 DSH Web 兼容适配器。Community v0.15 尚未定义 `client` facet，因此该适配器不会被声明为 `client` facet，也不宣称具备跨宿主 UI 一致性。
 
 确切边界见 [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md)。

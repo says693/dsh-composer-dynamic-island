@@ -12,8 +12,9 @@ React tree.
 
 This package has two deliberately separate layers:
 
-- `lib/host.js` and `dsh-plugin.json` form a headless Community v0.15 host
-  facet. It requires no contracts, permissions, credentials, browser, or GUI.
+- `src/index.ts` (published as `lib/types/index.js`) and `dsh-plugin.json` form
+  a headless Community v0.15 host facet. It requires no contracts, permissions,
+  credentials, browser, or GUI.
 - `lib/client.js` is an optional DSH Web compatibility adapter. Community
   v0.15 does not define a client facet, so the adapter is not represented as
   one and is not claimed as cross-host UI conformance.

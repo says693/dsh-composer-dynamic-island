@@ -84,6 +84,8 @@ test('keeps English as the main README and links the Chinese translation', () =>
   assert.match(chineseReadme, /本插件有意\*\*不提供\*\*拖放、坐标存储/);
   assert.ok(manifest.files.includes('README.md'));
   assert.ok(manifest.files.includes('README.zh-CN.md'));
+  assert.doesNotMatch(readme, /`lib\/host\.js`/);
+  assert.doesNotMatch(chineseReadme, /`lib\/host\.js`/);
 });
 
 test('declares only the Community v0.15 host facet', () => {
