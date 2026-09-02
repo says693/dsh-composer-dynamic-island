@@ -1,8 +1,8 @@
 # DSH Composer Dynamic Island
 
 Collapse selected DeepSeek Harness Web composer controls into a compact,
-upward-expanding island without changing the host React tree or the controls'
-user-configurable positions.
+upward-expanding island without moving their DOM nodes or changing the host
+React tree.
 
 [dsh-TUI](https://github.com/ccch1mneyyy/dsh-TUI) · A DeepSeek Harness ecosystem plugin.
 

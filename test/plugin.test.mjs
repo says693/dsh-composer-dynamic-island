@@ -19,6 +19,8 @@ test('publishes a portable package with an optional DSH Web adapter', () => {
 
 test('declares only the Community v0.15 host facet', () => {
   assert.equal(protocolManifest.manifestVersion, '0.15');
+  assert.equal(protocolManifest.version, manifest.version);
+  assert.equal(protocolManifest.id, 'io.github.says693.composer-dynamic-island');
   assert.deepEqual(Object.keys(protocolManifest.facets), ['host']);
   assert.equal(protocolManifest.facets.host.entry, 'lib/host.js');
   assert.deepEqual(protocolManifest.requires.contracts, []);
