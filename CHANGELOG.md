@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented here.
 
+## [2.1.0] - 2026-09-02
+
+### Added
+
+- Added an English-primary, bilingual README with a Simplified Chinese edition.
+- Added generic integration for button-style extensions in future
+  `conversation.input.*` and `composer.*` slots.
+- Added constrained discovery for marked and nested composer button plugins.
+- Added DOM behavior tests for discovery boundaries and stable candidate IDs.
+
+### Changed
+
+- Reworked the package root to the template-style TypeScript Cordis contract:
+  `name`, typed `Config`, and `apply`, with no default export.
+- Adopted pnpm, declaration output, and an explicit Cordis peer dependency.
+- Declared says693 as the sole author and copyright holder.
+
+### Security
+
+- Text-entry controls and ordinary forms outside the composer are explicitly
+  excluded from button integration.
+
 ## [2.0.0] - 2026-09-02
 
 ### Removed

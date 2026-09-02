@@ -1,75 +1,103 @@
-# Release audit — 2.0.0
+# Release audit — 2.1.0
 
 Audit date: 2026-09-02
 
 ## Scope
 
-This audit covers the source tree intended for the initial public GitHub
-release of `dsh-composer-dynamic-island` 2.0.0. It focuses on removal of the
-user-facing button-position editor, the Community v0.15 declaration boundary,
-privacy, dependencies, lifecycle cleanup, tests, and package contents.
+This audit covers the source tree intended for release as
+`dsh-composer-dynamic-island` 2.1.0. It focuses on the template-style Cordis
+root contract, generic input-surface button integration, removal of the
+user-facing position editor, protocol boundaries, authorship, privacy,
+dependencies, tests, and package contents.
+
+## Authorship
+
+- Sole plugin author and maintainer: `says693`.
+- `package.json` contains one `author` value and no contributors list.
+- The MIT copyright notice names only `says693`.
+- Both README editions state the same sole authorship.
+- Upstream package and project attribution is dependency attribution, not
+  plugin authorship.
 
 ## Results
 
+### Template-style package root
+
+- Pure ESM TypeScript source in `src/index.ts`.
+- Package root exports `name`, typed `Config`, and `apply`, with no default
+  export.
+- Declaration files and declaration maps are generated into `lib/types/`.
+- `cordis.patch.yml` loads that package root with an explicit empty config.
+- Cordis is declared as a peer and development dependency.
+- pnpm and a committed `pnpm-lock.yaml` are used for reproducible installation.
+
+The root remains a no-op in headless hosts. Browser behavior stays in the
+optional DSH Web adapter and is not represented as a Community v0.15 client
+facet.
+
+### Button-extension integration
+
+Discovery remains bounded to a confirmed DSH input/composer surface. It
+supports:
+
+- known left, right, and model input slots;
+- future `conversation.input.*` and `composer.*` slots;
+- nested button contributions with plugin or extension data markers;
+- unmarked direct composer-toolbar buttons as manual opt-in controls.
+
+Text-entry controls (`textarea`, contenteditable, ARIA textbox, and text-like
+input types) are rejected even if marked as plugins. Settings, search, and
+ordinary forms outside the composer are not scanned. Candidate node IDs remain
+stable while a surviving DOM node remains mounted.
+
 ### Removed positioning capability
 
-The following behavior is absent from the release:
-
-- long-press or pointer-drag handlers for composer controls;
-- layout-editing and dragging attributes or styles;
-- user-defined x/y coordinates;
-- coordinate persistence, restoration, or reset controls;
-- composer-frame expansion for free-form button layouts.
-
-The island still calculates transient viewport coordinates for its own panel
-and collapsed controls. This is internal rendering beside a fixed trigger, not
-a user-configurable button-position capability.
+The release contains no long-press dragging, layout editor, user-defined x/y
+coordinates, coordinate persistence, or reset-position controls. The island
+still calculates transient viewport coordinates for rendering beside its fixed
+trigger; this is not a user-configurable positioning capability.
 
 ### Protocol boundary
 
 - `dsh-plugin.json` declares Community v0.15 and only `facets.host`.
 - Required contracts, permissions, subscriptions, and command contributions
   are empty.
-- The host entry is DOM-free and has no effects.
-- The DSH Web code is explicitly marked as an optional compatibility adapter,
-  not a standard client facet or a cross-host conformance claim.
-- The manifest's pinned JSON Schema URL returned HTTP 200 during the audit.
+- The host entry is DOM-free and effect-free.
+- The DSH Web code is explicitly an optional compatibility adapter, not a
+  standard client facet or cross-host conformance claim.
 
 ### Privacy and permissions
 
-- No network APIs or filesystem APIs are used by the plugin.
+- No network or filesystem APIs are used by the plugin runtime.
 - No conversation content, provider settings, API keys, or credentials are
   read or persisted.
 - Browser storage is limited to a configured flag and selected control IDs.
 - Legacy stored coordinates and cached labels are discarded on load.
 
-### Dependency and supply-chain review
+## Verification results
 
-- Runtime dependency: `@deepseek-ai/schemastery` 3.18.1, pinned exactly in
-  `package.json` and transitively locked by `package-lock.json`.
-- `npm audit --omit=dev --audit-level=high` against the official npm registry:
-  0 vulnerabilities.
-- The package lock records integrity hashes and official npm registry sources.
-- A secret-pattern scan of the release tree returned no matches.
-
-### Verification
-
-- JavaScript syntax checks: passed.
-- Host entry runtime import and export check: passed.
-- Node test suite: 11 passed, 0 failed.
-- `npm pack --dry-run`: passed; 9 package files, approximately 46 kB unpacked.
+- TypeScript build and declaration generation: passed.
+- TypeScript no-emit check and JavaScript syntax check: passed.
+- Node behavior tests, including DOM discovery fixtures: 18 passed, 0 failed.
+- Community v0.15 JSON Schema validation: passed.
+- pnpm audit against the official npm registry: no known vulnerabilities.
+- Package inspection: passed; 11 files, approximately 58.4 kB unpacked.
+- Secret-pattern scan: no source match.
+- Authorship assertions: passed; only `says693` is declared as plugin author.
 
 ## Known limitations
 
 - No official DSH or Community v0.15 certification is claimed.
-- The optional Web adapter still requires a real-host interaction test for each
-  supported DSH Web release; this source snapshot did not include a runnable
-  host fixture or browser-level verifier.
+- A real DSH Web host interaction test is still required for each supported host
+  release; fixture tests validate discovery policy, not every third-party UI.
+- The adapter trigger still depends on the DSH Web slot service and its right
+  input slot.
 - In-process DSH plugins share their host's trust boundary and are not a
   security sandbox.
 
 ## Release decision
 
-No critical or high-severity issue was found in the reviewed source. The
-release is suitable for public source distribution with the compatibility and
-runtime-testing limitations above disclosed.
+No critical or high-severity issue was found in the reviewed source. Version
+2.1.0 is suitable for public source distribution with the documented host-test
+limitations. Compatibility is claimed for the documented discovery policy,
+not for arbitrary controls elsewhere on a page.

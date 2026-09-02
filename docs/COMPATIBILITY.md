@@ -27,6 +27,12 @@ button-position editor, dragging, user-defined coordinates, size controls, or
 layout persistence. Those behaviors are not part of Community v0.15, Runtime /
 Presentation interoperation, or the current Views contract.
 
+Button-extension discovery is bounded to a confirmed DSH input/composer
+surface. Semantic `conversation.input.*` and `composer.*` slots are preferred;
+plugin/extension data markers and direct toolbar buttons provide a constrained
+fallback. Text-entry widgets and controls outside that surface are excluded.
+This is an adapter discovery policy, not a new cross-host UI contract.
+
 It does not read model-provider settings, API keys, conversation content, or
 filesystem data. It persists only whether configuration is enabled and the
 local identifiers of composer controls selected for the island. Older stored

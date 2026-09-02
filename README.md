@@ -1,5 +1,7 @@
 # DSH Composer Dynamic Island
 
+**English** | [简体中文](README.zh-CN.md)
+
 Collapse selected DeepSeek Harness Web composer controls into a compact,
 upward-expanding island without moving their DOM nodes or changing the host
 React tree.
@@ -20,10 +22,23 @@ See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) for the exact boundary.
 
 ## Web behavior
 
-The adapter detects controls from the active DSH composer and lets the user
-choose which controls collapse into an upward-expanding island. It discovers
-native controls and contributions in `conversation.input.left`,
-`conversation.input.right`, and `conversation.input.model`.
+The adapter detects controls from an active DSH input or composer surface and
+lets the user choose which controls collapse into an upward-expanding island.
+It discovers:
+
+- native controls and contributions in `conversation.input.left`,
+  `conversation.input.right`, and `conversation.input.model`;
+- button-style contributions in future `conversation.input.*` or `composer.*`
+  slots;
+- nested button contributions marked with `data-plugin`, `data-plugin-id`,
+  `data-extension`, `data-extension-id`, or `data-contribution`;
+- unmarked button controls that are direct members of a confirmed composer
+  toolbar, as manual opt-in choices.
+
+Discovery stays inside a confirmed input/composer surface. Text-entry widgets
+such as text/search inputs, textareas, contenteditable regions, and ARIA
+textboxes are never collapsed, even when they carry a plugin marker. Search,
+settings, and ordinary form controls outside the composer are not scanned.
 
 Defaults collapse left-side plugin controls and the WebUI team-mode selector.
 Native tools, permission controls, model controls, and send/stop remain in
@@ -74,14 +89,21 @@ site's local storage key `dsh-composer-dynamic-island-config-v1` is removed.
 
 ## Development
 
-Requires Node.js `^22.19 || >=24`.
+Requires Node.js `^22.19 || >=24` and pnpm 10.
+
+The package root follows the dsh-TUI plugin-template contract and exports
+`name`, typed `Config`, and `apply` without a default export. The optional DSH
+Web adapter remains a separate, explicitly non-standard client layer.
 
 ```sh
-npm ci
-npm run check
-npm test
-npm pack --dry-run
+corepack pnpm install --frozen-lockfile
+corepack pnpm build
+corepack pnpm verify
 ```
+
+## Author
+
+This plugin is written and maintained solely by [says693](https://github.com/says693).
 
 ## Status and license
 

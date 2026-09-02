@@ -1,12 +1,19 @@
 {
   "name": "dsh-composer-dynamic-island",
-  "version": "2.0.0",
-  "description": "A compact DSH Web composer island with a Community v0.15 host manifest and no user-defined button positioning.",
+  "version": "2.1.0",
+  "description": "A compact DSH Web composer island that integrates button-style input extensions without user-defined positioning.",
   "type": "module",
-  "main": "lib/index.js",
+  "main": "lib/types/index.js",
+  "types": "lib/types/index.d.ts",
   "exports": {
-    ".": "./lib/index.js",
-    "./host": "./lib/host.js",
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/types/index.js"
+    },
+    "./host": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/types/index.js"
+    },
     "./client": "./lib/client.js",
     "./dsh-plugin.json": "./dsh-plugin.json",
     "./cordis.patch.yml": "./cordis.patch.yml",
@@ -18,6 +25,7 @@
     "dsh-plugin.json",
     "cordis.patch.yml",
     "README.md",
+    "README.zh-CN.md",
     "LICENSE"
   ],
   "dsh": {
@@ -29,9 +37,10 @@
     }
   },
   "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit && node --check lib/client.js",
     "test": "node --test test/*.test.mjs",
-    "check": "node --check lib/client.js && node --check lib/index.js && node --check lib/host.js",
-    "verify": "npm run check && npm test && npm pack --dry-run"
+    "verify": "tsc -p tsconfig.json && tsc -p tsconfig.json --noEmit && node --check lib/client.js && node --test test/*.test.mjs && npm pack --dry-run"
   },
   "repository": {
     "type": "git",
@@ -41,20 +50,31 @@
   "bugs": {
     "url": "https://github.com/says693/dsh-composer-dynamic-island/issues"
   },
-  "author": "陆玖叁 (says693)",
+  "author": "says693",
   "keywords": [
     "deepseek-harness",
     "dsh",
     "dsh-plugin",
     "dsh-web",
     "composer",
-    "dynamic-island"
+    "dynamic-island",
+    "input-extension"
   ],
   "dependencies": {
-    "@deepseek-ai/schemastery": "3.18.1"
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@types/node": "^22.0.0",
+    "linkedom": "^0.18.12",
+    "typescript": "^6.0.3"
   },
   "engines": {
     "node": "^22.19 || >=24"
   },
+  "packageManager": "pnpm@10.15.1",
   "license": "MIT"
 }
