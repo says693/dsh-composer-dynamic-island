@@ -1,0 +1,60 @@
+{
+  "name": "dsh-composer-dynamic-island",
+  "version": "2.0.0",
+  "description": "A compact DSH Web composer island with a Community v0.15 host manifest and no user-defined button positioning.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./host": "./lib/host.js",
+    "./client": "./lib/client.js",
+    "./dsh-plugin.json": "./dsh-plugin.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "docs",
+    "dsh-plugin.json",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check lib/client.js && node --check lib/index.js && node --check lib/host.js",
+    "verify": "npm run check && npm test && npm pack --dry-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/says693/dsh-composer-dynamic-island.git"
+  },
+  "homepage": "https://github.com/says693/dsh-composer-dynamic-island#readme",
+  "bugs": {
+    "url": "https://github.com/says693/dsh-composer-dynamic-island/issues"
+  },
+  "author": "陆玖叁 (says693)",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "dsh-web",
+    "composer",
+    "dynamic-island"
+  ],
+  "dependencies": {
+    "@deepseek-ai/schemastery": "3.18.1"
+  },
+  "engines": {
+    "node": "^22.19 || >=24"
+  },
+  "license": "MIT"
+}
