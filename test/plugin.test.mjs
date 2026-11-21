@@ -32,7 +32,7 @@ function loadClientTestingApi() {
       definition = value;
     },
   };
-  Object.assign(globalThis, {
+  vm.runInNewContext(source, {
     window,
     document: window.document,
     Element: window.Element,
@@ -40,8 +40,11 @@ function loadClientTestingApi() {
     HTMLButtonElement: window.HTMLButtonElement,
     HTMLSelectElement: window.HTMLSelectElement,
     MutationObserver: window.MutationObserver,
-  });
-  vm.runInThisContext(source, { filename: 'lib/client.js' });
+    ResizeObserver: class {
+      observe() {}
+      disconnect() {}
+    },
+  }, { filename: 'lib/client.js' });
   assert.ok(definition, 'client module definition must be registered');
   const client = definition.factory((id) => {
     if (id !== 'react') throw new Error(`unexpected client dependency: ${id}`);
@@ -51,7 +54,7 @@ function loadClientTestingApi() {
       useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot(),
     };
   });
-  return { window, testing: client.__testing };
+  return { window, client, testing: client.__testing };
 }
 
 const clientHarness = loadClientTestingApi();
@@ -232,6 +235,118 @@ test('supports pointer, keyboard and cleanup lifecycles', () => {
   assert.match(source, /observer\.disconnect\(\)/);
   assert.match(source, /requestAnimationFrame/);
   assert.match(source, /document\.removeEventListener\("pointerdown"/);
+});
+
+function mountInteractiveIsland(t) {
+  const { window, client } = loadClientTestingApi();
+  const { document } = window;
+  document.body.innerHTML = `
+    <div data-composer-card>
+      <div data-input-scroll><textarea></textarea></div>
+      <div class="composer-row">
+        <div><div data-slot="conversation.input.left">
+          <button data-plugin="test" aria-label="Plugin action"></button>
+        </div></div>
+        <div><span data-dsh-island-surface>
+          <button data-dsh-island-trigger aria-expanded="false" aria-controls="test-panel"></button>
+          <section data-dsh-island-panel id="test-panel"></section>
+        </span><button aria-label="Send"></button></div>
+      </div>
+    </div><button id="outside">Outside</button>`;
+  const trigger = document.querySelector('[data-dsh-island-trigger]');
+  const row = trigger.closest('.composer-row');
+  const item = document.querySelector('[data-plugin]');
+  const outside = document.querySelector('#outside');
+  const hovered = new Set();
+  let activeElement = null;
+  const dispatch = (node, type, properties = {}) => {
+    const event = new window.Event(type, { bubbles: !['pointerenter', 'pointerleave', 'focus'].includes(type), cancelable: true });
+    Object.assign(event, properties);
+    node.dispatchEvent(event);
+  };
+  // linkedom does not model layout, hover state or browser focus transitions.
+  for (const node of document.querySelectorAll('*')) {
+    node.getBoundingClientRect = () => ({ left: 100, top: 300, right: 200, bottom: 336, width: 100, height: 36 });
+    const matches = node.matches.bind(node);
+    node.matches = (selector) => selector === ':hover' ? hovered.has(node)
+      : selector === ':focus-within' ? node.contains(activeElement) : matches(selector);
+    node.focus = () => {
+      if (activeElement === node) return;
+      const previous = activeElement;
+      activeElement = node;
+      if (previous) dispatch(previous, 'focusout');
+      dispatch(node, 'focus');
+      dispatch(node, 'focusin');
+    };
+  }
+  Object.defineProperty(document, 'activeElement', { get: () => activeElement });
+  window.getComputedStyle = () => ({ transform: 'none', filter: 'none', perspective: 'none', contain: 'none' });
+  window.innerWidth = 1024;
+  window.innerHeight = 768;
+  window.requestAnimationFrame = () => 1;
+  window.cancelAnimationFrame = () => {};
+  client.apply({
+    slots: { inject() {} },
+    effect: (effect) => t.after(effect()),
+  });
+  assert.ok(item.hasAttribute('data-dsh-island-item'));
+  return {
+    document, trigger, row, item, outside, dispatch,
+    enter(node) { hovered.add(node); dispatch(node, 'pointerenter'); },
+    leave(node) { hovered.delete(node); dispatch(node, 'pointerleave'); },
+    assertOpen(open) {
+      assert.equal(row.dataset.dshIslandOpen, String(open));
+      assert.equal(trigger.getAttribute('aria-expanded'), String(open));
+    },
+  };
+}
+
+test('first touch pins a preview-open island and the next click closes it', (t) => {
+  const island = mountInteractiveIsland(t);
+  island.dispatch(island.trigger, 'pointerenter', { pointerType: 'touch' });
+  island.trigger.focus();
+  island.assertOpen(true);
+  island.dispatch(island.trigger, 'click');
+  island.assertOpen(true);
+  island.dispatch(island.trigger, 'click');
+  island.assertOpen(false);
+
+  island.dispatch(island.trigger, 'click');
+  island.assertOpen(true);
+  island.dispatch(island.item, 'pointerdown');
+  island.assertOpen(true);
+  island.dispatch(island.outside, 'pointerdown');
+  island.assertOpen(false);
+});
+
+test('Escape from an island item restores trigger focus without reopening', async (t) => {
+  const island = mountInteractiveIsland(t);
+  island.trigger.focus();
+  island.assertOpen(true);
+  island.item.focus();
+  island.dispatch(island.item, 'keydown', { key: 'Escape' });
+  assert.equal(island.document.activeElement, island.trigger);
+  island.assertOpen(false);
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  island.assertOpen(false);
+  island.outside.focus();
+  island.trigger.focus();
+  island.assertOpen(true);
+});
+
+test('desktop hover and pinned islands still close after pointer exit', async (t) => {
+  const island = mountInteractiveIsland(t);
+  island.enter(island.trigger);
+  island.assertOpen(true);
+  island.leave(island.trigger);
+  await new Promise((resolve) => setTimeout(resolve, 140));
+  island.assertOpen(false);
+  island.enter(island.trigger);
+  island.dispatch(island.trigger, 'click');
+  island.assertOpen(true);
+  island.leave(island.trigger);
+  await new Promise((resolve) => setTimeout(resolve, 140));
+  island.assertOpen(false);
 });
 
 test('repairs composer-local React rerenders', () => {

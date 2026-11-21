@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+### Fixed
+
+- Keep the first touch click open when hover or focus has already previewed the
+  island; a second click or an outside pointer press closes it.
+- Keep the island closed after Escape restores focus to its trigger.
+
 ## [2.1.0] - 2026-09-02
 
 ### Added
