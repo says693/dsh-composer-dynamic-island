@@ -98,9 +98,11 @@ Web adapter remains a separate, explicitly non-standard client layer.
 
 ```sh
 corepack pnpm install --frozen-lockfile
-corepack pnpm build
 corepack pnpm verify
 ```
+
+GitHub Actions runs the same verification on Windows with Node.js 22.19.0 and 24.
+It builds, type-checks, tests, and previews the package without publishing.
 
 ## Author
 

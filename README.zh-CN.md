@@ -68,9 +68,10 @@ dsh-composer-dynamic-island-config-v1
 
 ```sh
 corepack pnpm install --frozen-lockfile
-corepack pnpm build
 corepack pnpm verify
 ```
+
+GitHub Actions 在 Windows 上使用 Node.js 22.19.0 和 24 执行同样的验证：构建、类型检查、测试和打包预览，不会发布。
 
 ## 作者
 
